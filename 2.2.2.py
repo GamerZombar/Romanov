@@ -1,4 +1,3 @@
-import csv
 from openpyxl import Workbook
 from openpyxl.styles import Border, Side, Alignment, Font
 from openpyxl.utils import get_column_letter
@@ -13,9 +12,6 @@ import math
 from datetime import datetime
 from prettytable import PrettyTable
 from typing import *
-
-
-# import time
 
 NAME = 0
 SALARY_FROM = 1
@@ -255,7 +251,6 @@ class Report:
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         pdfkit.from_string(pdf_template, "report.pdf", configuration=config, options={"enable-local-file-access": ""})
 
-# region const
 
 def prettify_val(val):
     if type(val) == list:
@@ -302,7 +297,8 @@ def salary_filter(vac, *args):
 
 def publish_filter(vac, *args):
     # return datetime.strptime(vac["published_at_date"], "%d.%m.%Y") == datetime.strptime(args[1], "%d.%m.%Y")
-    return datetime.strptime(".".join(vac["published_at"].split("T")[0].split("-")[::-1]), "%d.%m.%Y") == datetime.strptime(args[1], "%d.%m.%Y")
+    return datetime.strptime(".".join(vac["published_at"].split("T")[0].split("-")[::-1]),
+                             "%d.%m.%Y") == datetime.strptime(args[1], "%d.%m.%Y")
 
 
 def parameter_filter(vac, *args):
@@ -429,8 +425,6 @@ dic_sorters = {
 }
 
 
-# endregion
-
 class DataSet:
     def __init__(self, file_name: str) -> None:
         self.file_name: str = file_name
@@ -493,7 +487,9 @@ class DataSet:
         self.filter_vacancies(filter_key, filter_val)
         self.sort_vacancies(sort_name, reverse)
 
-    def print_vacancies(self, filter_key, filter_val, sort_name, dic_naming, reverse=False, row_indexes=[]):
+    def print_vacancies(self, filter_key, filter_val, sort_name, dic_naming, reverse=False, row_indexes=None):
+        if row_indexes is None:
+            row_indexes = []
         self.prettify_vacancies(filter_key, filter_val, sort_name, reverse)
         pretty_vacancies = [vacancy.to_pretty_dict() for vacancy in self.vacancies_objects]
         if not row_indexes:
@@ -614,23 +610,16 @@ class InputConnect:
         else:
             self.dict_init = dic_trans
 
+
 if input("Введите данные для печати: ") == "":
     input_connect: InputConnect = InputConnect()
-    # endregion
     if input_connect.is_ok:
         ds = DataSet(input_connect.filename)
         ds.print_vacancies(input_connect.filter_key, input_connect.filter_val, input_connect.sort_param,
                            input_connect.dict_init, input_connect.sort_reverse, input_connect.rows)
     else:
         print(input_connect.message)
-# vacancies.csv
-#
-# Опыт работ
-# Нет
-#
-# Компания, Название, Навыки, Опыт работы, Оклад
 
-# st = time.time()
 else:
     filename = input("Введите название файла: ")
     name = input("Введите название профессии: ")
