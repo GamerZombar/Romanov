@@ -621,7 +621,7 @@ if input("Введите данные для печати: ") == "":
         print(input_connect.message)
 
 else:
-    filename = input("Введите название файла: ")
+    filename = input("Введите название файла123: ")
     name = input("Введите название профессии: ")
 
     rep = Report(filename, name)
