@@ -72,4 +72,4 @@ class UserInterfaceTests(TestCase):
         self.assertEqual(UserInterface().file_name, '../vacancies_medium.csv')
 
     def test_user_interface_file_name(self):
-        self.assertEqual(UserInterface(file_name='../vacancies_by_year.csv').file_name, '../vacancies_by_year.csv')
+        self.assertEqual(UserInterface(file_name='vacancies_by_year.csv').file_name, '../vacancies_by_year.csv')

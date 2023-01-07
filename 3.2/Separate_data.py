@@ -1,6 +1,16 @@
 import csv
 from re import sub
 import os
+# from typing import List
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pdfkit
+# import doctest
+# from jinja2 import Environment, FileSystemLoader
+# from openpyxl import Workbook
+# from openpyxl.styles import Font, Border, Side
+# from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
+
 
 def custom_quit(msg: str) -> None:
     """
@@ -73,12 +83,12 @@ class UserInterface:
         :param profession_name: Название профессии для сбора статистики. По-умолчанию 'Программист'.
 
         >>> u = UserInterface()
-        >>> u.file_name
+        >>> u.f_name
         '../vacancies_medium.csv'
         >>> u.profession_name
         'Программист'
         >>> i = UserInterface('example.csv')
-        >>> i.file_name
+        >>> i.f_name
         'example.csv'
         >>> x = UserInterface(profession_name='Аналитик')
         >>> x.profession_name
@@ -87,7 +97,7 @@ class UserInterface:
         if file_name is not None:
             self.file_name = file_name
         else:
-            self.file_name = "../vacancies_medium.csv"
+            self.file_name = "vacancies_medium.csv"
         if profession_name is not None:
             self.profession_name = profession_name
         else:
@@ -386,10 +396,10 @@ def generate_csvs_by_years(vacs_by_years_dicts: list) -> None:
 
 
 if __name__ == '__main__':
-    ui = UserInterface(file_name="../vacancies_by_year.csv")
+    ui = UserInterface()
     csv_data = CSV(ui.file_name)
-    title, row_vacancies = csv_data.title, csv_data.rows
+    title, row_vacancies = csv_data.title, csv_data.row
     vacancies_fields_dictionaries = [parse_row_vacancy(title, row_vac) for row_vac in row_vacancies]
     vacancies_by_years_dictionaries = get_vacancies_by_years(vacancies_fields_dictionaries)
     generate_csvs_by_years(vacancies_by_years_dictionaries)
-    
+
