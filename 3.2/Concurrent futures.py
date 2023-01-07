@@ -5,11 +5,10 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 import pdfkit
-# import doctest
 from jinja2 import Environment, FileSystemLoader
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side
-import multiprocessing
+import concurrent.futures
 import time
 from line_profiler_pycharm import profile
 
@@ -419,6 +418,33 @@ class DataSet:
         else:
             d[f] += 1
 
+    # def set_correct_cities_data(self) -> None:
+    #     """
+    #     Обрабатывает словари, связанные с данными по городам. Сортирует словари по значениям - средней зарплате
+    #     и доле вакансии в городе. Наибольшие значения идут первыми.
+    #     """
+    #     for key, value in self.ratio_vacancy_by_cities.items():
+    #         self.ratio_vacancy_by_cities[key] = round(value / len(self.vacancies), 4)
+    #
+    #     d1 = dict(sorted(self.salaries_by_cities.items(), key=lambda i: i[1][1] / i[1][0]))
+    #     self.salaries_by_cities = self.get_first_ten_from_cities_dict(d1)
+    #
+    #     d2 = dict(sorted(self.ratio_vacancy_by_cities.items(), key=lambda i: i[1], reverse=True))
+    #     self.ratio_vacancy_by_cities = self.get_first_ten_from_cities_dict(d2)
+
+    # def get_first_ten_from_cities_dict(self, d: dict) -> dict:
+    #     """
+    #     Оставляет в словаре только первые 10 значений, удовлетворяющих условию - больше 1% вакансий в городе от
+    #     общего числа вакансий."""
+    #     count = 0
+    #     res = {}
+    #     for key, value in d.items():
+    #         if count == 10:
+    #             break
+    #         if self.city_vacancies_count[key] >= len(self.vacancies) // 100:
+    #             res[key] = value
+    #             count += 1
+    #     return res
 
     def get_data(self) -> dict:
         """
@@ -529,11 +555,34 @@ class Report:
 
         self.fill_column('Количество вакансий', list(vacancies_by_years.values()),
                          [cell[0] for cell in ws['D1':f'D{len(vacancies_by_years) + 1}']])
-        self.fill_column(f'Количество вакансий - {self.ds.profession_name}', list(profession_vacancies_by_years.values()),
+        self.fill_column(f'Количество вакансий - {self.ds.profession_name}',
+                         list(profession_vacancies_by_years.values()),
                          [cell[0] for cell in ws['E1':f'E{len(profession_vacancies_by_years) + 1}']])
 
         self.update_worksheet_settings(ws)
 
+    # def fill_cities_statistics(self) -> None:
+    #     """
+    #     Создаёт и переключается на второй лист Excel-файла. Заполняет его данными о городах и зарплатах.
+    #
+    #     """
+    #     self.workbook.create_sheet("Статистика по городам")
+    #     ws = self.workbook["Статистика по городам"]
+    #     salaries_by_cities = self.data["Уровень зарплат по городам"]
+    #     vacs_ratio_by_cities = self.data["Доля вакансий по городам"]
+    #
+    #     self.fill_column('Город', list(salaries_by_cities.keys()),
+    #                      [cell[0] for cell in ws['A1':f'A{len(salaries_by_cities) + 1}']])
+    #     self.fill_column('Уровень зарплат', list(salaries_by_cities.values()),
+    #                      [cell[0] for cell in ws['B1': f'B{len(salaries_by_cities) + 1}']])
+    #
+    #     self.fill_column('Город', list(vacs_ratio_by_cities.keys()),
+    #                      [cell[0] for cell in ws['D1':f'D{len(vacs_ratio_by_cities) + 1}']])
+    #     self.fill_column('Доля вакансий', list(vacs_ratio_by_cities.values()),
+    #                      [cell[0] for cell in ws['E1': f'E{len(vacs_ratio_by_cities) + 1}']])
+    #
+    #     self.set_column_percent([cell[0] for cell in ws['E2': f'E{len(vacs_ratio_by_cities) + 1}']])
+    #     self.update_worksheet_settings(ws)
 
     @staticmethod
     def fill_column(header: str, data: list, column_cells: list) -> None:
@@ -660,6 +709,43 @@ class Report:
         subplot.tick_params(axis='both', labelsize=8)
         subplot.legend(fontsize=8)
 
+    # def draw_invert_bar_graph(self, subplot, name: str) -> None:
+    #     """
+    #     Рисует повёрнутую на левый бок столбчатую диаграмму.
+    #
+    #     :param subplot: Подобласть для отрисовки графика.
+    #     :param name: Название графика. Должен соответствовать ключу из data.
+    #     """
+    #     subplot.invert_yaxis()
+    #     courses = list(self.data[name].keys())
+    #     courses = [label.replace(' ', '\n').replace('-', '-\n') for label in courses]
+    #     values = list(self.data[name].values())
+    #     subplot.barh(courses, values)
+    #     subplot.set_yticklabels(courses, fontsize=6, va='center', ha='right')
+    #
+    #     subplot.set_title(name)
+    #     subplot.grid(True, axis='x')
+    #     subplot.tick_params(axis='both', labelsize=8)
+
+    # def draw_pie_graph(self, subplot, name: str) -> None:
+    #     """
+    #     Рисует круговую диаграмму.
+    #
+    #     :param subplot: Подобласть для отрисовки графика.
+    #     :param name: Название графика. Должен соответствовать ключу из data.
+    #     """
+    #     data = self.data[name]
+    #     other = 1 - sum((list(data.values())))
+    #     new_dic = {'Другие': other}
+    #     new_dic.update(data)
+    #
+    #     labels = list(new_dic.keys())
+    #     sizes = list(new_dic.values())
+    #
+    #     subplot.set_title(name)
+    #     subplot.pie(sizes, labels=labels, textprops={'fontsize': 6})
+    #     subplot.axis('scaled')
+
     # endregion
     # region PDF
 
@@ -670,7 +756,8 @@ class Report:
         :param name: Название сохраняемого PDF-файла с явно указанным расширением.
         """
         image_file = os.path.join(os.path.dirname(name), "graph.png")
-        header_year = ["Год", "Средняя зарплата", f"Средняя зарплата - {self.ds.profession_name}", "Количество вакансий",
+        header_year = ["Год", "Средняя зарплата", f"Средняя зарплата - {self.ds.profession_name}",
+                       "Количество вакансий",
                        f"Количество вакансий - {self.ds.profession_name}"]
         # header_city = ["Город", "Уровень зарплат", '', "Город", "Доля вакансий"]
 
@@ -806,7 +893,7 @@ def generate_csvs_by_years(vacs_by_years_dicts: list) -> None:
 
 
 @profile
-def process_csv_file(file_path: os.path, p_name: str):
+def process_csv_file(file_path: os.path, p_name: str) -> None:
     file_name = os.path.basename(file_path)
     year = file_name.split('.')[0][-4:]
     csv_directory = file_path.replace(file_name, '')
@@ -835,16 +922,13 @@ if __name__ == '__main__':
 
     ui = UserInterface()
     chunks_directory = "csvs_by_years"
-    processes = []
+    paths_to_csvs = []
 
     for f_name in filter(lambda name: name.endswith(".csv"), os.listdir(chunks_directory)):
-        path_to_file = os.path.join(chunks_directory, f_name)
-        p = multiprocessing.Process(target=process_csv_file, args=(path_to_file, ui.profession_name))
-        p.start()
-        processes.append(p)
+        paths_to_csvs.append(os.path.join(chunks_directory, f_name))
 
-    for process in processes:
-        process.join()
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(process_csv_file, paths_to_csvs, [ui.profession_name for n in range(len(paths_to_csvs))])
 
     final = time.perf_counter()
     print(final - start)

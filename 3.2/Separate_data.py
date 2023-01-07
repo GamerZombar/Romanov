@@ -97,7 +97,7 @@ class UserInterface:
         if file_name is not None:
             self.file_name = file_name
         else:
-            self.file_name = "vacancies_medium.csv"
+            self.file_name = "../vacancies_medium.csv"
         if profession_name is not None:
             self.profession_name = profession_name
         else:
@@ -248,7 +248,7 @@ class Vacancy:
         area_name, published_at
 
         >>> v = Vacancy({"name": 'Программист'})
-        >>> v.name
+        >>> v.t
         'Программист'
         >>> hasattr(v, 'area_name')
         False
@@ -308,6 +308,8 @@ class Vacancy:
             return value
 
 
+
+
 def parse_html(line: str) -> str:
     """
     Убирает HTML-теги из строки.
@@ -317,7 +319,7 @@ def parse_html(line: str) -> str:
     """
     line = sub('<.*?>', '', line)
     res = [' '.join(word.split()) for word in line.replace("\r\n", "\n").split('\n')]
-    return res[0] if len(res) == 1 else res
+    return res[0] if len(res) == 1 else res  # Спасибо Яндекс.Контесту за еще один костыль!
 
 
 def parse_row_vacancy(header: list, row_vacs: list) -> dict:
@@ -398,8 +400,7 @@ def generate_csvs_by_years(vacs_by_years_dicts: list) -> None:
 if __name__ == '__main__':
     ui = UserInterface()
     csv_data = CSV(ui.file_name)
-    title, row_vacancies = csv_data.title, csv_data.row
+    title, row_vacancies = csv_data.title, csv_data.rows
     vacancies_fields_dictionaries = [parse_row_vacancy(title, row_vac) for row_vac in row_vacancies]
     vacancies_by_years_dictionaries = get_vacancies_by_years(vacancies_fields_dictionaries)
     generate_csvs_by_years(vacancies_by_years_dictionaries)
-
